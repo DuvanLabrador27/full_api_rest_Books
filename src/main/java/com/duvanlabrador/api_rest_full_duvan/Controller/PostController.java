@@ -1,6 +1,7 @@
 package com.duvanlabrador.api_rest_full_duvan.Controller;
 
 import com.duvanlabrador.api_rest_full_duvan.DTO.PostDTO;
+import com.duvanlabrador.api_rest_full_duvan.DTO.PostResponse;
 import com.duvanlabrador.api_rest_full_duvan.Service.PostService;
 import com.duvanlabrador.api_rest_full_duvan.Service.PostServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,8 +31,10 @@ public class PostController {
         }
     }
     @GetMapping
-    public List<PostDTO> getAllPost(){
-        return this.postService.getAllPosts();
+    public PostResponse getAllPost(
+            @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNumber,
+            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize){
+        return this.postService.getAllPosts(pageNumber,pageSize);
     }
 
     @GetMapping("/{id}")
@@ -60,7 +63,7 @@ public class PostController {
             postService.deletePost(id);
             return new ResponseEntity<>("Post Delete Correctly", HttpStatus.OK);
         }catch (Exception e){
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
+            return new ResponseEntity<>("Conflict, The post don't exist",HttpStatus.CONFLICT);
         }
     }
 

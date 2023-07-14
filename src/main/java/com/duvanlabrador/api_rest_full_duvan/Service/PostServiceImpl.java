@@ -1,10 +1,14 @@
 package com.duvanlabrador.api_rest_full_duvan.Service;
 
 import com.duvanlabrador.api_rest_full_duvan.DTO.PostDTO;
+import com.duvanlabrador.api_rest_full_duvan.DTO.PostResponse;
 import com.duvanlabrador.api_rest_full_duvan.Entity.PostEntity;
 import com.duvanlabrador.api_rest_full_duvan.Excepcion.ResourceNotFoundException;
 import com.duvanlabrador.api_rest_full_duvan.Repository.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -31,11 +35,22 @@ public class PostServiceImpl implements PostService{
     }
 
     @Override
-    public List<PostDTO> getAllPosts() {
+    public PostResponse getAllPosts(int pageNumber, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNumber,pageSize);
+        Page<PostEntity> posts = postRepository.findAll(pageable);
+
         //Le pedimos a la BD que me devuelva todos los datos
-        List<PostEntity> postEntities = postRepository.findAll();
+        List<PostEntity> postEntities = posts.getContent();
         //Convertimos de Entity a DTO
-        return postEntities.stream().map(post -> mapDTO(post)).collect(Collectors.toList());
+        List<PostDTO> content = postEntities.stream().map(post -> mapDTO(post)).collect(Collectors.toList());
+        PostResponse postResponse = new PostResponse();
+        postResponse.setContent(content);
+        postResponse.setPageNumber(posts.getNumber());
+        postResponse.setPageSize(posts.getSize());
+        postResponse.setTotalElements(posts.getTotalElements());
+        postResponse.setTotalPages(posts.getTotalPages());
+        postResponse.setLastPage(posts.isLast());
+        return postResponse;
     }
 
     @Override
@@ -97,6 +112,7 @@ public class PostServiceImpl implements PostService{
         postToDTO.setTitle(postEntity.getTitle());
         postToDTO.setDescription(postEntity.getDescription());
         postToDTO.setContent(postEntity.getContent());
+        postToDTO.setCommentsEntities(postEntity.getCommentsEntities());
         return postToDTO;
     }
 

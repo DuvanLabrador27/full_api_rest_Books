@@ -1,7 +1,13 @@
 package com.duvanlabrador.api_rest_full_duvan.Entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "post", uniqueConstraints = {@UniqueConstraint(columnNames = {"title"})})
@@ -20,5 +26,7 @@ public class PostEntity {
     private String description;
     @Column(name = "content", nullable = false)
     private String content;
+    @OneToMany(mappedBy = "postEntity", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<CommentsEntity> commentsEntities = new HashSet<>();
 
 }
